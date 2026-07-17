@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TS HAPPY HOME E-Card</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Prompt', 'Kanit', sans-serif;
+        }
+
+        .card-container {
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .section {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .bg-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .flash-effect {
+            animation: lightReveal 3s ease-out forwards;
+        }
+
+        @keyframes lightReveal {
+            0% {
+                filter: brightness(5) contrast(0.5);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            100% {
+                filter: brightness(1) contrast(1);
+            }
+        }
+
+        .scroll-down-btn {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            animation: bounce 2s infinite;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        .scroll-down-btn::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border-right: 3px solid #fff;
+            border-bottom: 3px solid #fff;
+            transform: translateY(-3px) rotate(45deg);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .content-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .power-btn {
+            position: absolute;
+            left: 13%;
+            width: 74%;
+            height: 7.5%;
+            background: rgba(255, 255, 255, 0);
+            border: none;
+            outline: none;
+            cursor: pointer;
+            border-radius: 15px;
+            -webkit-tap-highlight-color: rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-1 { top: 36.8%; }
+        .btn-2 { top: 46.0%; }
+        .btn-3 { top: 55.2%; }
+        .btn-4 { top: 64.5%; }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            padding: 20px;
+        }
+
+        .popup-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .popup-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9f6f0 100%);
+            width: 100%;
+            max-width: 340px;
+            border-radius: 24px;
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 3px solid #d4af37;
+            transform: scale(0.7);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .popup-overlay.active .popup-card {
+            transform: scale(1);
+        }
+
+        .popup-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #8a6d1c;
+            margin-bottom: 14px;
+            border-bottom: 1px dashed #d4af37;
+            padding-bottom: 8px;
+        }
+
+        .popup-desc {
+            font-size: 15px;
+            color: #4a4a4a;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            text-align: justify;
+            text-justify: inter-word;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 35px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(170,124,17,0.4);
+            transition: transform 0.2s;
+            width: 100%;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="card-container" id="cardContainer">
+        
+        <!-- หน้าที่ 1 -->
+        <div class="section" id="section1">
+            <img src="page1.png" alt="TS Happy Home Blessing" class="bg-image flash-effect">
+            <div class="scroll-down-btn" onclick="scrollToSection2()"></div>
+        </div>
+
+        <!-- หน้าที่ 2 -->
+        <div class="section" id="section2">
+            <div class="content-wrapper">
+                <img src="page2.png" alt="4 Powers Card" class="bg-image">
+                <button class="power-btn btn-1" onclick="openPopup(0)"></button>
+                <button class="power-btn btn-2" onclick="openPopup(1)"></button>
+                <button class="power-btn btn-3" onclick="openPopup(2)"></button>
+                <button class="power-btn btn-4" onclick="openPopup(3)"></button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- โครงสร้างระบบ Popup ข้อความ -->
+    <div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+        <div class="popup-card" onclick="event.stopPropagation()">
+            <div class="popup-title" id="popupTitle">หัวข้อพลัง</div>
+            <div class="popup-desc" id="popupDesc">รายละเอียดความหมายของพลัง...</div>
+            <button class="action-btn" onclick="claimBlessing()">รับพลังสิริมงคล</button>
+        </div>
+    </div>
+
+    <script>
+        const powerData = [
+            {
+                title: "พลังแห่งความขยันหมั่นเพียร",
+                desc: "สะท้อนถึงความมุ่งมั่นทุ่มเทอย่างไร้ขีดจำกัด ในการขับเคลื่อน TS HAPPY HOME ด้วยความเพียรพยายามและไม่หยุดยั้ง เปรียบเสมือนฟันเฟืองทองคำที่ทำงานประสานกันอย่างทรงพลัง พร้อมเปลี่ยนอุปสรรคให้เป็นผลสำเร็จอันงดงามและยั่งยืนตลอดไป"
+            },
+            {
+                title: "พลังแห่งความมั่นคง",
+                desc: "เปรียบเสมือนขุนเขาหินอ่อนและกระทิงทองที่มีรากฐานอันแข็งแกร่งและสง่างาม น่าเชื่อถือ มีความมั่นคงทางการค้าและธุรกิจ ที่พร้อมรองรับการขยายตัวและเติบโตอย่างไร้ขีดจำกัดของ TS HAPPY HOME"
+            },
+            {
+                title: "พลังแห่งความรุ่งเรือง",
+                desc: "ต้นไม้เงินต้นไม้ทองดึงดูดโชคลาภมหาศาล สื่อถึงความเจริญก้าวหน้าอย่างก้าวกระโดด ผลประกอบการที่งอกเงย และความเป็นสิริมงคลอันเป็นนิรันดร์ที่จะหลั่งไหลเข้ามาสู่ TS HAPPY HOME และทีมงานทุกท่านอย่างไม่มีวันเสื่อมคลาย"
+            },
+            {
+                title: "พลังแห่งการบุกเบิก",
+                desc: "จิตวิญญาณแห่งผู้นำที่กล้าหาญและทรงพลังดั่งกระทิงทองคำ ผสานกับเข็มทิศนำทางที่เที่ยงตรง พร้อมนำพา TS HAPPY HOME ก้าวเข้าสู่ตลาดใหม่ๆ ทลายทุกข้อจำกัดด้วยวิสัยทัศน์ที่เฉียบคมและไม่มีวันยอมแพ้ต่ออุปสรรคใดๆ"
+            }
+        ];
+
+        function scrollToSection2() {
+            document.getElementById('section2').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function openPopup(index) {
+            document.getElementById('popupTitle').innerText = powerData[index].title;
+            document.getElementById('popupDesc').innerText = powerData[index].desc;
+            document.getElementById('popupOverlay').classList.add('active');
+        }
+
+        function closePopup(event) {
+            document.getElementById('popupOverlay').classList.remove('active');
+        }
+
+        function claimBlessing() {
+            alert("✨ ท่านได้รับพลังสิริมงคลนี้เรียบร้อยแล้ว ขอให้ประสบความสำเร็จและเจริญรุ่งเรืองยิ่งๆ ขึ้นไป ✨");
+            document.getElementById('popupOverlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
