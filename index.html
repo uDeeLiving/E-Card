@@ -240,6 +240,7 @@
     </div>
 
     <script>
+        // ข้อมูลข้อความสำหรับ Popup
         const powerData = [
             {
                 title: "พลังแห่งความขยันหมั่นเพียร",
@@ -258,25 +259,48 @@
                 desc: "จิตวิญญาณแห่งผู้นำที่กล้าหาญและทรงพลังดั่งกระทิงทองคำ ผสานกับเข็มทิศนำทางที่เที่ยงตรง พร้อมนำพา TS HAPPY HOME ก้าวเข้าสู่ตลาดใหม่ๆ ทลายทุกข้อจำกัดด้วยวิสัยทัศน์ที่เฉียบคมและไม่มีวันยอมแพ้ต่ออุปสรรคใดๆ"
             }
         ];
-
+    
+        // ตัวแปรเช็กสถานะว่ากดรับพลังไปหรือยังในแต่ละรอบที่เปิด popup
+        let isBlessed = false;
+    
         function scrollToSection2() {
             document.getElementById('section2').scrollIntoView({ behavior: 'smooth' });
         }
-
+    
+        // ฟังก์ชันเปิด Popup (รีเซ็ตสถานะปุ่มกลับมาเริ่มต้นใหม่ทุกครั้งที่เปิดกรอบใหม่)
         function openPopup(index) {
+            isBlessed = false; 
             document.getElementById('popupTitle').innerText = powerData[index].title;
             document.getElementById('popupDesc').innerText = powerData[index].desc;
+            
+            const actionBtn = document.querySelector('.action-btn');
+            actionBtn.innerText = "รับพลังสิริมงคล";
+            actionBtn.style.background = "linear-gradient(135deg, #d4af37 0%, #aa7c11 100%)"; // สีทองเดิม
+            
             document.getElementById('popupOverlay').classList.add('active');
         }
-
+    
+        // ฟังก์ชันปิด Popup
         function closePopup(event) {
             document.getElementById('popupOverlay').classList.remove('active');
         }
-
+    
+        // ฟังก์ชันเมื่อกดปุ่มรับพลัง (เปลี่ยนข้อความใน popup เดิมทันที ไม่เด้งซ้อน)
         function claimBlessing() {
-            alert("✨ ท่านได้รับพลังสิริมงคลนี้เรียบร้อยแล้ว ขอให้ประสบความสำเร็จและเจริญรุ่งเรืองยิ่งๆ ขึ้นไป ✨");
-            document.getElementById('popupOverlay').classList.remove('active');
+            const actionBtn = document.querySelector('.action-btn');
+            
+            if (!isBlessed) {
+                // กดครั้งที่ 1: เปลี่ยนข้อความอธิบาย และเปลี่ยนข้อความบนปุ่ม
+                document.getElementById('popupDesc').innerHTML = "<div style='text-align:center; font-weight:600; color:#8a6d1c; padding: 10px 0;'>✨ ท่านได้รับพลังสิริมงคลนี้เรียบร้อยแล้ว ✨<br><br>ขอให้ประสบความสำเร็จ ความเจริญรุ่งเรือง<br>และมีความสุขยิ่งๆ ขึ้นไปตลอดปีตลอดไป</div>";
+                
+                actionBtn.innerText = "น้อมรับพรสิริมงคล";
+                actionBtn.style.background = "linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)"; // เปลี่ยนเป็นสีเขียวเหนี่ยวทรัพย์/สำเร็จ
+                isBlessed = true;
+            } else {
+                // กดครั้งที่ 2 (หลังจากเปลี่ยนเป็นปุ่มน้อมรับพรแล้ว): ปิดหน้าต่างลงแบบนุ่มนวล
+                closePopup();
+            }
         }
-    </script>
+    </script>    
 </body>
 </html>
