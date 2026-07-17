@@ -128,6 +128,7 @@
         .btn-3 { top: 55.2%; }
         .btn-4 { top: 64.5%; }
 
+        /* --- Popup Overlay --- */
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -152,10 +153,12 @@
             pointer-events: auto;
         }
 
+        /* ล็อคขนาดความสูงและกว้างคงที่เพื่อให้ขนาดไม่ขยับตอนเปลี่ยนข้อความ */
         .popup-card {
             background: linear-gradient(135deg, #ffffff 0%, #f9f6f0 100%);
             width: 100%;
             max-width: 340px;
+            height: 380px; 
             border-radius: 24px;
             padding: 28px 24px;
             text-align: center;
@@ -163,6 +166,9 @@
             border: 3px solid #d4af37;
             transform: scale(0.7);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; 
         }
 
         .popup-overlay.active .popup-card {
@@ -170,23 +176,41 @@
         }
 
         .popup-title {
-            font-size: 22px;
+            font-size: 21px;
             font-weight: 700;
             color: #8a6d1c;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
             border-bottom: 1px dashed #d4af37;
             padding-bottom: 8px;
+            flex-shrink: 0;
+        }
+
+        /* ส่วนกล่องข้อความตั้งความสูงคงที่และรองรับการเฟดอย่างนุ่มนวล */
+        .desc-container {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            overflow: hidden;
         }
 
         .popup-desc {
-            font-size: 15px;
+            font-size: 14.5px;
             color: #4a4a4a;
             line-height: 1.6;
-            margin-bottom: 24px;
             text-align: justify;
             text-justify: inter-word;
+            transition: opacity 0.5s ease; 
+            opacity: 1;
+            width: 100%;
         }
 
+        .popup-desc.fade-out {
+            opacity: 0;
+        }
+
+        /* ปุ่มสีทองหรูหราคงเดิม */
         .action-btn {
             background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
             color: #fff;
@@ -197,12 +221,17 @@
             border-radius: 50px;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(170,124,17,0.4);
-            transition: transform 0.2s;
+            transition: transform 0.2s, opacity 0.3s ease;
             width: 100%;
+            flex-shrink: 0;
         }
 
         .action-btn:active {
             transform: scale(0.95);
+        }
+        
+        .action-btn.fade-out {
+            opacity: 0;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&family=Prompt:wght@400;600;700&display=swap" rel="stylesheet">
@@ -234,13 +263,14 @@
     <div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
         <div class="popup-card" onclick="event.stopPropagation()">
             <div class="popup-title" id="popupTitle">หัวข้อพลัง</div>
-            <div class="popup-desc" id="popupDesc">รายละเอียดความหมายของพลัง...</div>
+            <div class="desc-container">
+                <div class="popup-desc" id="popupDesc">รายละเอียดความหมายของพลัง...</div>
+            </div>
             <button class="action-btn" onclick="claimBlessing()">รับพลังสิริมงคล</button>
         </div>
     </div>
 
     <script>
-        // ข้อมูลข้อความสำหรับ Popup
         const powerData = [
             {
                 title: "พลังแห่งความขยันหมั่นเพียร",
@@ -259,48 +289,63 @@
                 desc: "จิตวิญญาณแห่งผู้นำที่กล้าหาญและทรงพลังดั่งกระทิงทองคำ ผสานกับเข็มทิศนำทางที่เที่ยงตรง พร้อมนำพา TS HAPPY HOME ก้าวเข้าสู่ตลาดใหม่ๆ ทลายทุกข้อจำกัดด้วยวิสัยทัศน์ที่เฉียบคมและไม่มีวันยอมแพ้ต่ออุปสรรคใดๆ"
             }
         ];
-    
-        // ตัวแปรเช็กสถานะว่ากดรับพลังไปหรือยังในแต่ละรอบที่เปิด popup
+
         let isBlessed = false;
-    
+
         function scrollToSection2() {
             document.getElementById('section2').scrollIntoView({ behavior: 'smooth' });
         }
-    
-        // ฟังก์ชันเปิด Popup (รีเซ็ตสถานะปุ่มกลับมาเริ่มต้นใหม่ทุกครั้งที่เปิดกรอบใหม่)
+
         function openPopup(index) {
             isBlessed = false; 
-            document.getElementById('popupTitle').innerText = powerData[index].title;
-            document.getElementById('popupDesc').innerText = powerData[index].desc;
             
-            const actionBtn = document.querySelector('.action-btn');
-            actionBtn.innerText = "รับพลังสิริมงคล";
-            actionBtn.style.background = "linear-gradient(135deg, #d4af37 0%, #aa7c11 100%)"; // สีทองเดิม
+            // รีเซ็ตข้อความและปุ่มกลับสู่สถานะเริ่มต้นแบบทันที
+            const descEl = document.getElementById('popupDesc');
+            const btnEl = document.querySelector('.action-btn');
+            
+            descEl.classList.remove('fade-out');
+            btnEl.classList.remove('fade-out');
+            
+            document.getElementById('popupTitle').innerText = powerData[index].title;
+            descEl.style.textAlign = "justify";
+            descEl.innerText = powerData[index].desc;
+            
+            btnEl.innerText = "รับพลังสิริมงคล";
             
             document.getElementById('popupOverlay').classList.add('active');
         }
-    
-        // ฟังก์ชันปิด Popup
+
         function closePopup(event) {
             document.getElementById('popupOverlay').classList.remove('active');
         }
-    
-        // ฟังก์ชันเมื่อกดปุ่มรับพลัง (เปลี่ยนข้อความใน popup เดิมทันที ไม่เด้งซ้อน)
+
         function claimBlessing() {
-            const actionBtn = document.querySelector('.action-btn');
+            const descEl = document.getElementById('popupDesc');
+            const btnEl = document.querySelector('.action-btn');
             
             if (!isBlessed) {
-                // กดครั้งที่ 1: เปลี่ยนข้อความอธิบาย และเปลี่ยนข้อความบนปุ่ม
-                document.getElementById('popupDesc').innerHTML = "<div style='text-align:center; font-weight:600; color:#8a6d1c; padding: 10px 0;'>✨ ท่านได้รับพลังสิริมงคลนี้เรียบร้อยแล้ว ✨<br><br>ขอให้ประสบความสำเร็จ ความเจริญรุ่งเรือง<br>และมีความสุขยิ่งๆ ขึ้นไปตลอดปีตลอดไป</div>";
+                // 1. เริ่มจางข้อความและปุ่มเดิมออก (Fade out)
+                descEl.classList.add('fade-out');
+                btnEl.classList.add('fade-out');
                 
-                actionBtn.innerText = "น้อมรับพรสิริมงคล";
-                actionBtn.style.background = "linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)"; // เปลี่ยนเป็นสีเขียวเหนี่ยวทรัพย์/สำเร็จ
-                isBlessed = true;
+                // 2. รอให้ข้อความเดิมจางหายไปสนิท (500 มิลลิวินาที) แล้วค่อยเปลี่ยนข้อความข้างใน
+                setTimeout(() => {
+                    descEl.style.textAlign = "center";
+                    descEl.innerHTML = "<div style='font-weight:600; color:#8a6d1c; padding: 10px 0;'>✨ ท่านได้รับพลังสิริมงคลนี้เรียบร้อยแล้ว ✨<br><br>ขอให้ประสบความสำเร็จ ความเจริญรุ่งเรือง<br>และมีความสุขยิ่งๆ ขึ้นไปตลอดปีตลอดไป</div>";
+                    
+                    btnEl.innerText = "น้อมรับพรสิริมงคล";
+                    
+                    // 3. แสดงข้อความและชื่อปุ่มใหม่ขึ้นมาอย่างนุ่มนวล (Fade in)
+                    descEl.classList.remove('fade-out');
+                    btnEl.classList.remove('fade-out');
+                    isBlessed = true;
+                }, 500);
+                
             } else {
-                // กดครั้งที่ 2 (หลังจากเปลี่ยนเป็นปุ่มน้อมรับพรแล้ว): ปิดหน้าต่างลงแบบนุ่มนวล
+                // หากกดครั้งที่สองจะปิดหน้าต่างลงอย่างนุ่มนวล
                 closePopup();
             }
         }
-    </script>    
+    </script>
 </body>
 </html>
